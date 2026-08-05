@@ -2,9 +2,11 @@
 set -e
 mkdir -p build/MandyClean.app/Contents/MacOS
 mkdir -p build/MandyClean.app/Contents/Resources
+mkdir -p build/MandyCleanIntel.app/Contents/MacOS
+mkdir -p build/MandyCleanIntel.app/Contents/Resources
 
-echo "1. Compiling for Apple Silicon (arm64)..."
-xcrun swiftc -emit-executable -parse-as-library -target arm64-apple-macos14.0 \
+echo "1. Compiling macOS 13.0+ Apple Silicon (arm64)..."
+xcrun swiftc -emit-executable -parse-as-library -target arm64-apple-macos13.0 \
   -vfsoverlay vfs.yaml -Xcc -ivfsoverlay -Xcc vfs.yaml \
   MandyClean/App/MandyCleanApp.swift MandyClean/ContentView.swift MandyClean/Theme/AppTheme.swift \
   MandyClean/Models/RAMInfo.swift MandyClean/Models/SystemProcess.swift MandyClean/Models/CleanupItem.swift \
@@ -37,8 +39,8 @@ xcrun swiftc -emit-executable -parse-as-library -target arm64-apple-macos14.0 \
   MandyClean/Components/AnimatedButton.swift \
   -o bin_arm64
 
-echo "2. Compiling for Intel Macs (x86_64)..."
-xcrun swiftc -emit-executable -parse-as-library -target x86_64-apple-macos14.0 \
+echo "2. Compiling macOS 13.0+ Intel (x86_64)..."
+xcrun swiftc -emit-executable -parse-as-library -target x86_64-apple-macos13.0 \
   -vfsoverlay vfs.yaml -Xcc -ivfsoverlay -Xcc vfs.yaml \
   MandyClean/App/MandyCleanApp.swift MandyClean/ContentView.swift MandyClean/Theme/AppTheme.swift \
   MandyClean/Models/RAMInfo.swift MandyClean/Models/SystemProcess.swift MandyClean/Models/CleanupItem.swift \
@@ -71,10 +73,12 @@ xcrun swiftc -emit-executable -parse-as-library -target x86_64-apple-macos14.0 \
   MandyClean/Components/AnimatedButton.swift \
   -o bin_x86_64
 
-echo "3. Combining into Universal 2 Binary (arm64 + x86_64)..."
-lipo -create bin_arm64 bin_x86_64 -output MandyCleanOutput
+echo "3. Creating Standalone Intel App (MandyCleanIntel.app)..."
+cp bin_x86_64 build/MandyCleanIntel.app/Contents/MacOS/MandyCleanIntel
+chmod +x build/MandyCleanIntel.app/Contents/MacOS/MandyCleanIntel
 
-cp MandyCleanOutput build/MandyClean.app/Contents/MacOS/MandyClean
+echo "4. Creating Universal 2 App (MandyClean.app)..."
+lipo -create bin_arm64 bin_x86_64 -output build/MandyClean.app/Contents/MacOS/MandyClean
 chmod +x build/MandyClean.app/Contents/MacOS/MandyClean
-rm -f bin_arm64 bin_x86_64
-echo "MANDYCLEAN_UNIVERSAL_BUILD_SUCCESS"
+
+echo "MANDYCLEAN_MACOS13_BUILD_SUCCESS"

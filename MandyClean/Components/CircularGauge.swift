@@ -54,7 +54,7 @@ struct CircularGauge: View {
                 animatedValue = value
             }
         }
-        .onChange(of: value) { _, newValue in
+        .onChange(of: value) { newValue in
             withAnimation(.easeOut(duration: 0.5)) {
                 animatedValue = newValue
             }
